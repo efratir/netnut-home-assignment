@@ -1,0 +1,81 @@
+<mxfile host="app.diagrams.net">
+  <diagram id="scraper-architecture" name="Scraper Architecture">
+    <mxGraphModel dx="673" dy="432" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="k8s-cluster" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;strokeWidth=2;dashed=1;verticalAlign=top;fontSize=14;fontStyle=1;fontColor=#333333;" value="" vertex="1">
+          <mxGeometry height="620" width="1020" x="240" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="infra-group" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=1;dashed=1;verticalAlign=top;fontSize=11;fontStyle=2;" value="" vertex="1">
+          <mxGeometry height="200" width="540" x="440" y="400" as="geometry" />
+        </mxCell>
+        <mxCell id="client" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;fontStyle=1;" value="Client" vertex="1">
+          <mxGeometry height="60" width="150" x="40" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="target-urls" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;fontStyle=1;" value="Target URLs&#xa;(the internet)" vertex="1">
+          <mxGeometry height="60" width="150" x="1340" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="proxy" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;strokeWidth=1;dashed=1;fontSize=10;" value="Proxy&#xa;(optional)&#xa;PROXY_URL env var" vertex="1">
+          <mxGeometry height="70" width="150" x="1340" y="450" as="geometry" />
+        </mxCell>
+        <mxCell id="api" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;fontStyle=1;" value="API Service&lt;br&gt;:3000" vertex="1">
+          <mxGeometry height="80" width="160" x="290" y="190" as="geometry" />
+        </mxCell>
+        <mxCell id="job-manager" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;fontStyle=1;" value="Job Manager&lt;br&gt;:3001" vertex="1">
+          <mxGeometry height="80" width="160" x="660" y="190" as="geometry" />
+        </mxCell>
+        <mxCell id="scraper" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;fontStyle=1;" value="Scraper Worker&lt;br&gt;&lt;div&gt;(:3002)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="80" width="160" x="1020" y="190" as="geometry" />
+        </mxCell>
+        <mxCell id="postgres" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;fontStyle=1;" value="PostgreSQL&#xa;:5432&#xa;(jobs table)" vertex="1">
+          <mxGeometry height="100" width="140" x="490" y="440" as="geometry" />
+        </mxCell>
+        <mxCell id="redis" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#ffe6cc;strokeColor=#d6b656;fontSize=11;fontStyle=1;" value="Redis&#xa;:6379&#xa;BullMQ Queue" vertex="1">
+          <mxGeometry height="100" width="140" x="790" y="440" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="client" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=1;exitY=0.5;entryX=0;entryY=0.5;fontSize=9;html=1;" target="api" value="POST /jobs&#xa;GET /jobs/:id">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="api" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=1;exitY=0.5;entryX=0;entryY=0.5;fontSize=9;html=1;" target="job-manager" value="HTTP forward">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="job-manager" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=0.5;exitY=1;entryX=0.5;entryY=0;fontSize=9;html=1;strokeColor=#82b366;" target="postgres" value="1. save job&#xa;(PENDING)">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="job-manager" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=0.5;exitY=1;entryX=0.5;entryY=0;fontSize=9;html=1;strokeColor=#d6b656;" target="redis" value="2. enqueue&#xa;{ jobId, url }">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="redis" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=1;exitY=0.5;entryX=0.5;entryY=1;fontSize=9;html=1;strokeColor=#d6b656;" target="scraper" value="3. dequeue job&#xa;(BRPOP)">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" edge="1" parent="1" source="scraper" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=1;exitY=0.5;entryX=0;entryY=0.5;fontSize=9;html=1;" target="target-urls" value="4a. fetch HTML&#xa;(direct)">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" edge="1" parent="1" source="scraper" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=1;exitY=1;entryX=0;entryY=0.5;fontSize=9;html=1;dashed=1;strokeColor=#b85450;" target="proxy" value="4. via proxy&lt;br&gt;(optional)">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" edge="1" parent="1" source="proxy" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=0.5;exitY=0;entryX=0.5;entryY=1;fontSize=9;html=1;dashed=1;strokeColor=#b85450;" target="target-urls" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e9" edge="1" parent="1" source="scraper" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=0;exitY=1;entryX=1;entryY=0;fontSize=9;html=1;strokeColor=#82b366;" target="postgres" value="5. update status&#xa;+ save html">
+          <mxGeometry relative="1" x="-0.1962" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="1020" y="355" />
+              <mxPoint x="630" y="355" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e10" edge="1" parent="1" source="job-manager" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=0;exitY=1;entryX=0;entryY=0;fontSize=9;html=1;strokeColor=#6c8ebf;dashed=1;" target="postgres" value="6. GET /jobs/:id&#xa;reads status">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="620" y="360" />
+              <mxPoint x="480" y="360" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
