@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: scraper-config
+  namespace: scraper
+data:
+  REDIS_HOST: redis
+  REDIS_PORT: "6379"
+  API_PORT: "3000"
+  JOB_MANAGER_PORT: "3001"
+  SCRAPER_PORT: "3002"
+  JOB_MANAGER_URL: http://job-manager:3001

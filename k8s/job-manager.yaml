@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: job-manager
+  namespace: scraper
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: job-manager
+  template:
+    metadata:
+      labels:
+        app: job-manager
+    spec:
+      containers:
+        - name: job-manager
+          image: <registry>/scraper-job-manager:latest
+          ports:
+            - containerPort: 3001
+          envFrom:
+            - configMapRef:
+                name: scraper-config
+            - secretRef:
+                name: scraper-secrets
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: job-manager
+  namespace: scraper
+spec:
+  type: ClusterIP
+  selector:
+    app: job-manager
+  ports:
+    - port: 3001
+      targetPort: 3001
